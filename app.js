@@ -17,6 +17,24 @@ function loadSettings() {
   $('#apiKey').value = localStorage.getItem(LS_KEY) || '';
 }
 
+
+async function loadConfigFromEnv() {
+  try {
+    const res = await fetch('/api/config');
+    if (!res.ok) return;
+    const cfg = await res.json();
+    // 环境变量有值才覆盖（localStorage 里手动保存的值优先）
+    if (cfg.apiUrl && !localStorage.getItem(LS_URL)) {
+      $('#apiUrl').value = cfg.apiUrl;
+    }
+    if (cfg.apiKey && !localStorage.getItem(LS_KEY)) {
+      $('#apiKey').value = cfg.apiKey;
+    }
+  } catch (e) {
+    // 没有 Pages Functions 或未配置环境变量时静默失败（保持手动填写）
+  }
+}
+
 function saveSettings() {
   localStorage.setItem(LS_URL, $('#apiUrl').value.trim());
   localStorage.setItem(LS_KEY, $('#apiKey').value.trim());
@@ -130,6 +148,7 @@ async function removeMail(id) {
 
 // 初始化
 loadSettings();
+loadConfigFromEnv();
 $('#saveBtn').onclick = () => {
   saveSettings();
   loadList();
