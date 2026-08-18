@@ -1,0 +1,97 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  background: #f5f6fa;
+  color: #333;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: #2b3a67;
+  color: #fff;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+header h1 { font-size: 20px; }
+.badge {
+  font-size: 12px;
+  background: #4caf50;
+  border-radius: 4px;
+  padding: 2px 6px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+.settings { display: flex; gap: 8px; flex-wrap: wrap; }
+.settings input {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  width: 220px;
+  font-size: 13px;
+}
+.settings button {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #4caf50;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+.settings button:hover { background: #43a047; }
+
+main { flex: 1; display: flex; min-height: 0; }
+
+#mailList {
+  width: 320px;
+  background: #fff;
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
+}
+
+.mail-item {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+.mail-item:hover { background: #f0f4ff; }
+.mail-item.active { background: #e3ecff; }
+.mail-item .from { font-weight: 600; font-size: 14px; }
+.mail-item .subject { color: #555; font-size: 13px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mail-item .date { color: #999; font-size: 12px; margin-top: 2px; }
+
+.list-placeholder { color: #aaa; text-align: center; padding: 30px 10px; font-size: 13px; }
+
+#mailDetail { flex: 1; padding: 24px 30px; overflow-y: auto; background: #fff; }
+
+#emptyTip { color: #aaa; text-align: center; margin-top: 80px; font-size: 14px; }
+
+.mail-head { border-bottom: 1px solid #eee; padding-bottom: 14px; margin-bottom: 16px; }
+.mail-head h2 { font-size: 20px; margin-bottom: 8px; word-break: break-all; }
+.mail-head .meta { color: #777; font-size: 13px; line-height: 1.8; }
+.mail-head .meta b { color: #444; }
+
+.mail-body { font-size: 14px; line-height: 1.7; word-break: break-word; }
+.mail-body pre { white-space: pre-wrap; font-family: inherit; }
+.mail-body iframe { width: 100%; border: none; }
+
+.delete-btn {
+  margin-top: 20px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #e53935;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+.delete-btn:hover { background: #d32f2f; }

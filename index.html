@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ysnsm 邮箱</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>✉️ ysnsm 邮箱 <span class="badge">自建</span></h1>
+    <div class="settings">
+      <input id="apiUrl" placeholder="Worker 地址（https://xxx.workers.dev）">
+      <input id="apiKey" type="password" placeholder="API Key">
+      <button id="saveBtn">保存</button>
+      <button id="refreshBtn">刷新</button>
+    </div>
+  </header>
+
+  <main>
+    <aside id="mailList">
+      <div class="list-placeholder">输入 Worker 地址和 Key 后点刷新</div>
+    </aside>
+    <section id="mailDetail">
+      <div id="emptyTip">点击左侧邮件查看内容</div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
