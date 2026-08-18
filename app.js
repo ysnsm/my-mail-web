@@ -1,12 +1,3 @@
-/**
- * ysnsm 邮箱前端（多用户登录版）
- * - 登录：密码前端 MD5 后发送，服务端校验并下发 1h 时效 cookie 会话
- * - 会话：SameSite=None; Secure 跨域 cookie（自动携带，1 小时后过期自动回登录页）
- * - 独立 id：登录后每个用户独立，邮件按用户邮箱隔离
- */
-const API = 'https://api.mail.ysnsm.top';
-
-/* ==================== MD5（内联实现） ==================== */
 function md5(s) {
   function safeAdd(x, y) { var lsw = (x & 0xffff) + (y & 0xffff), msw = (x >> 16) + (y >> 16) + (lsw >> 16); return (msw << 16) | (lsw & 0xffff); }
   function bitRotateLeft(num, cnt) { return (num << cnt) | (num >>> (32 - cnt)); }
@@ -61,9 +52,13 @@ function md5(s) {
   return rstr2hex(rstrMD5(str2rstrUTF8(s)));
 }
 
-/* ==================== 页面逻辑 ==================== */
+// Worker API 地址（写死，抄代码的抄了也白搭 buni）
+const API = 'https://api.mail.ysnsm.top';
+
 const $ = (s) => document.querySelector(s);
 let user = null;
+let allMails = [];
+let currentId = null;
 
 async function api(path, opts = {}) {
   const res = await fetch(API + path, {
@@ -76,26 +71,37 @@ async function api(path, opts = {}) {
   return data;
 }
 
+// ============ 视图切换 ============
 function showLogin() {
   $('#loginView').style.display = 'flex';
+  $('#registerView').style.display = 'none';
+  $('#mailView').style.display = 'none';
+}
+function showRegister() {
+  $('#loginView').style.display = 'none';
+  $('#registerView').style.display = 'flex';
   $('#mailView').style.display = 'none';
 }
 function enterMail() {
   $('#loginView').style.display = 'none';
-  $('#mailView').style.display = 'block';
-  $('#userEmails').textContent = user.emails.join(' / ');
+  $('#registerView').style.display = 'none';
+  $('#mailView').style.display = 'flex';
+  $('#userEmails').textContent = user.emails.filter(Boolean).join(' / ');
+  $('#sideUserEmails').textContent = user.emails.filter(Boolean).join('\n');
   loadMails();
 }
 
+// ============ 初始化：有会话直接进邮箱 ============
 async function init() {
   try {
-    user = await api('/api/me'); // 有 1h 会话 cookie → 直接进邮箱
+    user = await api('/api/me');
     enterMail();
   } catch {
-    showLogin(); // 无会话/过期 → 登录界面
+    showLogin();
   }
 }
 
+// ============ 登录 ============
 $('#loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   $('#loginErr').textContent = '';
@@ -105,7 +111,7 @@ $('#loginForm').addEventListener('submit', async (e) => {
   try {
     user = await api('/api/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password: md5(password) }), // MD5 加密后发送
+      body: JSON.stringify({ email, password: md5(password) }),
     });
     $('#password').value = '';
     enterMail();
@@ -114,51 +120,138 @@ $('#loginForm').addEventListener('submit', async (e) => {
   }
 });
 
+// ============ 注册 ============
+$('#showRegisterLink').addEventListener('click', (e) => { e.preventDefault(); showRegister(); });
+$('#backToLoginLink').addEventListener('click', (e) => { e.preventDefault(); showLogin(); });
+
+$('#registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('#regErr').textContent = '';
+  const email1 = $('#regEmail1').value.trim();
+  const email2 = $('#regEmail2').value.trim();
+  const p1 = $('#regPassword').value;
+  const p2 = $('#regPassword2').value;
+  if (!email1 || !p1) { $('#regErr').textContent = '请填写邮箱和密码'; return; }
+  if (p1 !== p2) { $('#regErr').textContent = '两次输入的密码不一致'; return; }
+  if (p1.length < 6) { $('#regErr').textContent = '密码至少 6 位'; return; }
+  try {
+    const reg = await api('/api/register', {
+      method: 'POST',
+      body: JSON.stringify({ email1, email2, password: md5(p1) }),
+    });
+    // 注册成功 → 自动登录
+    user = await api('/api/login', {
+      method: 'POST',
+      body: JSON.stringify({ email: reg.emails[0], password: md5(p1) }),
+    });
+    enterMail();
+  } catch (err) {
+    $('#regErr').textContent = err.message;
+  }
+});
+
+// ============ 退出 ============
 $('#logoutBtn').addEventListener('click', async () => {
   try { await api('/api/logout', { method: 'POST' }); } catch (e) {}
   user = null;
+  currentId = null;
   showLogin();
 });
 
+// ============ 邮件列表 ============
 async function loadMails() {
   try {
     const data = await api('/api/mails');
-    const ul = $('#mailList');
-    ul.innerHTML = '';
-    $('#mailEmpty').style.display = data.mails.length ? 'none' : 'block';
-    data.mails.forEach((m) => {
-      const li = document.createElement('li');
-      li.innerHTML = `<div class="mail-subject">${esc(m.subject)}</div>
-        <div class="mail-meta">${esc(m.from)} · ${fmt(m.date)}</div>`;
-      li.onclick = () => openMail(m.id);
-      ul.appendChild(li);
-    });
+    allMails = data.mails || [];
+    renderMails(allMails);
   } catch (err) {
-    $('#mailEmpty').textContent = '加载失败：' + err.message;
     $('#mailEmpty').style.display = 'block';
+    $('#mailEmpty').textContent = '加载失败: ' + err.message;
   }
 }
 
+function renderMails(list) {
+  const ul = $('#mailList');
+  ul.innerHTML = '';
+  $('#mailCount').textContent = list.length ? list.length + ' 封' : '';
+  if (!list.length) {
+    $('#mailEmpty').style.display = 'block';
+    $('#mailEmpty').textContent = '暂无邮件';
+    return;
+  }
+  $('#mailEmpty').style.display = 'none';
+  list.forEach((m) => {
+    const li = document.createElement('li');
+    if (m.id === currentId) li.className = 'selected';
+    li.innerHTML =
+      '<div class="mail-from"><span>' + esc(m.from) + '</span>' +
+      '<span class="mail-date">' + fmtShort(m.date) + '</span></div>' +
+      '<div class="mail-subject">' + esc(m.subject) + '</div>' +
+      '<div class="mail-preview">' + esc((m.subject === '(无主题)' ? '' : m.subject) + ' - ' + m.to) + '</div>';
+    li.onclick = () => { currentId = m.id; openMail(m.id); };
+    ul.appendChild(li);
+  });
+}
+
+// 搜索（前端过滤）
+$('#searchInput').addEventListener('input', () => {
+  const q = $('#searchInput').value.trim().toLowerCase();
+  if (!q) return renderMails(allMails);
+  renderMails(allMails.filter((m) =>
+    String(m.from || '').toLowerCase().includes(q) ||
+    String(m.to || '').toLowerCase().includes(q) ||
+    String(m.subject || '').toLowerCase().includes(q)));
+});
+
+// 文件夹切换（收件箱 = 全部，均为当前用户邮箱的邮件）
+document.querySelectorAll('.nav-item').forEach((el) => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach((x) => x.classList.remove('active'));
+    el.classList.add('active');
+    const label = el.textContent.trim().replace(/^\S+\s*/, '');
+    $('#folderTitle').textContent = label || '收件箱';
+    loadMails();
+  });
+});
+
+// ============ 邮件详情 ============
 async function openMail(id) {
   try {
     const m = await api('/api/mails/' + id);
-    $('#mailDetail').innerHTML = `
-      <h2>${esc(m.subject)}</h2>
-      <div class="detail-meta">发件人：${esc(m.from)}<br>收件人：${esc(m.to)}<br>时间：${fmt(m.date)}</div>
-      <button id="delBtn" class="del-btn">删除</button>
-      <hr>
-      <pre class="mail-body">${esc(m.text || '(无正文)')}</pre>`;
+    $('#mailDetail').innerHTML =
+      '<h2>' + esc(m.subject) + '</h2>' +
+      '<div class="detail-meta">' +
+      '<div><span class="meta-from">发件人：</span>' + esc(m.from) + '</div>' +
+      '<div>收件人：' + esc(m.to) + '</div>' +
+      '<div>时间：' + fmt(m.date) + '</div>' +
+      '</div>' +
+      '<button id="delBtn" class="del-btn">🗑 删除</button>' +
+      '<hr>' +
+      '<div class="mail-body">' + esc(m.text || '(无正文)') + '</div>';
     $('#delBtn').onclick = async () => {
-      try { await api('/api/mails/' + id, { method: 'DELETE' }); } catch (e) {}
-      $('#mailDetail').innerHTML = '<p class="placeholder">已删除</p>';
-      loadMails();
+      try {
+        await api('/api/mails/' + id, { method: 'DELETE' });
+        $('#mailDetail').innerHTML = '<p class="placeholder">已删除</p>';
+        currentId = null;
+        loadMails();
+      } catch (err) {
+        $('#mailDetail').innerHTML = '<p class="placeholder">删除失败: ' + esc(err.message) + '</p>';
+      }
     };
   } catch (err) {
     $('#mailDetail').innerHTML = '<p class="placeholder">' + esc(err.message) + '</p>';
   }
 }
 
+// ============ 工具函数 ============
 function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function fmt(iso) { return new Date(iso).toLocaleString('zh-CN'); }
+function fmtShort(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  return d.toDateString() === now.toDateString()
+    ? d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+    : d.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' });
+}
 
 init();

@@ -7,39 +7,84 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- ============ 登录界面（初始页） ============ -->
-  <div id="loginView" class="view">
-    <div class="login-card">
-      <h1>✉️ ysnsm 邮箱</h1>
-      <p class="sub">登录后查看邮件</p>
-      <form id="loginForm">
-        <input id="email" type="email" placeholder="邮箱地址" required autocomplete="username">
-        <input id="password" type="password" placeholder="密码" required autocomplete="current-password">
-        <button type="submit">登 录</button>
-        <p id="loginErr" class="err"></p>
-      </form>
-    </div>
-  </div>
 
-  <!-- ============ 邮箱界面（登录后） ============ -->
-  <div id="mailView" class="view" style="display:none">
-    <header>
-      <h1>✉️ ysnsm 邮箱</h1>
-      <div class="user-info">
-        <span id="userEmails"></span>
-        <button id="logoutBtn" class="link-btn">退出</button>
-      </div>
-    </header>
-    <main>
-      <aside>
-        <ul id="mailList"></ul>
-        <p id="mailEmpty" class="empty">暂无邮件</p>
-      </aside>
-      <section id="mailDetail" class="detail">
-        <p class="placeholder">← 点击左侧邮件查看内容</p>
-      </section>
-    </main>
+<!-- ============ 登录界面 ============ -->
+<div id="loginView" class="view auth-view">
+  <div class="auth-card">
+    <div class="auth-logo">✉️</div>
+    <h1>ysnsm 邮箱</h1>
+    <p class="sub">登录后查看邮件</p>
+    <form id="loginForm">
+      <input id="email" type="email" placeholder="邮箱地址" required autocomplete="username">
+      <input id="password" type="password" placeholder="密码" required autocomplete="current-password">
+      <button type="submit" class="primary-btn">登 录</button>
+      <p id="loginErr" class="err"></p>
+    </form>
+    <p class="auth-switch">没有账户？<a href="#" id="showRegisterLink">走这里注册一个！</a></p>
   </div>
+</div>
+
+<!-- ============ 注册界面 ============ -->
+<div id="registerView" class="view auth-view" style="display:none">
+  <div class="auth-card">
+    <div class="auth-logo">📬</div>
+    <h1>注册新邮箱</h1>
+    <p class="sub">一个账户可绑定两个邮箱</p>
+    <form id="registerForm">
+      <input id="regEmail1" type="email" placeholder="邮箱地址 1（必填）" required autocomplete="username">
+      <input id="regEmail2" type="email" placeholder="邮箱地址 2（可选，可后补）" autocomplete="username">
+      <input id="regPassword" type="password" placeholder="密码（至少 6 位）" required minlength="6" autocomplete="new-password">
+      <input id="regPassword2" type="password" placeholder="确认密码" required minlength="6" autocomplete="new-password">
+      <button type="submit" class="primary-btn">注 册</button>
+      <p id="regErr" class="err"></p>
+    </form>
+    <p class="auth-switch">已有账户？<a href="#" id="backToLoginLink">直接登录</a></p>
+  </div>
+</div>
+
+<!-- ============ 邮箱界面（QQ 邮箱风格三栏） ============ -->
+<div id="mailView" class="view mail-view" style="display:none">
+  <header class="topbar">
+    <div class="brand">✉️ ysnsm 邮箱</div>
+    <div class="search-box">
+      <input id="searchInput" type="text" placeholder="搜索邮件…">
+    </div>
+    <div class="user-info">
+      <span id="userEmails" class="user-emails"></span>
+      <button id="logoutBtn" class="link-btn">退出</button>
+    </div>
+  </header>
+
+  <div class="mail-layout">
+    <!-- 左侧导航 -->
+    <nav class="side-nav">
+      <div class="compose-placeholder"></div>
+      <ul>
+        <li class="nav-item active" data-folder="inbox"><span class="nav-ico">📥</span> 收件箱</li>
+        <li class="nav-item" data-folder="all"><span class="nav-ico">📑</span> 全部邮件</li>
+      </ul>
+      <div class="side-user">
+        <div class="side-user-label">当前账户</div>
+        <div id="sideUserEmails"></div>
+      </div>
+    </nav>
+
+    <!-- 中间邮件列表 -->
+    <section class="mail-list-panel">
+      <div class="list-toolbar">
+        <span id="folderTitle">收件箱</span>
+        <span id="mailCount" class="count"></span>
+      </div>
+      <ul id="mailList"></ul>
+      <p id="mailEmpty" class="empty">暂无邮件</p>
+    </section>
+
+    <!-- 右侧阅读窗格 -->
+    <section id="mailDetail" class="detail-panel">
+      <p class="placeholder">← 点击左侧邮件查看内容</p>
+    </section>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>
