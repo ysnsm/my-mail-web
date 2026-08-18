@@ -1,20 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ysnsm 邮箱</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ysnsm 邮箱</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>✉️ ysnsm 邮箱 <span class="badge">自建</span></h1>
-    <button id="refreshBtn">刷新</button>
-  </header>
-  <main>
-    <aside id="mailList"><div class="list-placeholder">加载中…</div></aside>
-    <section id="mailDetail"><div id="emptyTip">点击左侧邮件查看内容</div></section>
-  </main>
-  <script src="app.js"></script>
+  <!-- ============ 登录界面（初始页） ============ -->
+  <div id="loginView" class="view">
+    <div class="login-card">
+      <h1>✉️ ysnsm 邮箱</h1>
+      <p class="sub">登录后查看邮件</p>
+      <form id="loginForm">
+        <input id="email" type="email" placeholder="邮箱地址" required autocomplete="username">
+        <input id="password" type="password" placeholder="密码" required autocomplete="current-password">
+        <button type="submit">登 录</button>
+        <p id="loginErr" class="err"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ 邮箱界面（登录后） ============ -->
+  <div id="mailView" class="view" style="display:none">
+    <header>
+      <h1>✉️ ysnsm 邮箱</h1>
+      <div class="user-info">
+        <span id="userEmails"></span>
+        <button id="logoutBtn" class="link-btn">退出</button>
+      </div>
+    </header>
+    <main>
+      <aside>
+        <ul id="mailList"></ul>
+        <p id="mailEmpty" class="empty">暂无邮件</p>
+      </aside>
+      <section id="mailDetail" class="detail">
+        <p class="placeholder">← 点击左侧邮件查看内容</p>
+      </section>
+    </main>
+  </div>
+
+<script src="app.js"></script>
 </body>
 </html>

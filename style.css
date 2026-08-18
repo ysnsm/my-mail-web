@@ -1,97 +1,39 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
 
-body {
-  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  background: #f5f6fa;
-  color: #333;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+/* 登录界面 */
+.view { min-height: 100vh; }
+#loginView { display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); }
+.login-card { background: rgba(30, 41, 59, 0.9); border: 1px solid #334155; border-radius: 16px; padding: 40px 36px; width: 340px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.login-card h1 { font-size: 22px; margin-bottom: 4px; color: #f8fafc; text-align: center; }
+.login-card .sub { color: #94a3b8; font-size: 13px; text-align: center; margin-bottom: 24px; }
+.login-card input { width: 100%; padding: 12px 14px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #f8fafc; font-size: 14px; outline: none; }
+.login-card input:focus { border-color: #3b82f6; }
+.login-card button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: #3b82f6; color: #fff; font-size: 15px; cursor: pointer; transition: background 0.2s; }
+.login-card button:hover { background: #2563eb; }
+.err { color: #f87171; font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
 
-header {
-  background: #2b3a67;
-  color: #fff;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
-}
+/* 邮箱界面 */
+#mailView header { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; background: #1e293b; border-bottom: 1px solid #334155; }
+#mailView header h1 { font-size: 18px; }
+.user-info { display: flex; align-items: center; gap: 12px; color: #94a3b8; font-size: 13px; }
+.link-btn { background: none; border: 1px solid #475569; color: #cbd5e1; padding: 5px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.link-btn:hover { background: #334155; }
 
-header h1 { font-size: 20px; }
-.badge {
-  font-size: 12px;
-  background: #4caf50;
-  border-radius: 4px;
-  padding: 2px 6px;
-  vertical-align: middle;
-  margin-left: 4px;
-}
+main { display: flex; height: calc(100vh - 58px); }
+aside { width: 340px; border-right: 1px solid #334155; overflow-y: auto; background: #111c2e; }
+aside ul { list-style: none; }
+aside li { padding: 14px 18px; border-bottom: 1px solid #1e293b; cursor: pointer; transition: background 0.15s; }
+aside li:hover { background: #1e293b; }
+.mail-subject { font-weight: 600; font-size: 14px; margin-bottom: 4px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mail-meta { font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.empty { color: #64748b; text-align: center; padding: 30px 0; font-size: 13px; }
 
-.settings { display: flex; gap: 8px; flex-wrap: wrap; }
-.settings input {
-  padding: 6px 10px;
-  border: none;
-  border-radius: 6px;
-  width: 220px;
-  font-size: 13px;
-}
-.settings button {
-  padding: 6px 14px;
-  border: none;
-  border-radius: 6px;
-  background: #4caf50;
-  color: #fff;
-  cursor: pointer;
-  font-size: 13px;
-}
-.settings button:hover { background: #43a047; }
-
-main { flex: 1; display: flex; min-height: 0; }
-
-#mailList {
-  width: 320px;
-  background: #fff;
-  border-right: 1px solid #e0e0e0;
-  overflow-y: auto;
-}
-
-.mail-item {
-  padding: 12px 14px;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-}
-.mail-item:hover { background: #f0f4ff; }
-.mail-item.active { background: #e3ecff; }
-.mail-item .from { font-weight: 600; font-size: 14px; }
-.mail-item .subject { color: #555; font-size: 13px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mail-item .date { color: #999; font-size: 12px; margin-top: 2px; }
-
-.list-placeholder { color: #aaa; text-align: center; padding: 30px 10px; font-size: 13px; }
-
-#mailDetail { flex: 1; padding: 24px 30px; overflow-y: auto; background: #fff; }
-
-#emptyTip { color: #aaa; text-align: center; margin-top: 80px; font-size: 14px; }
-
-.mail-head { border-bottom: 1px solid #eee; padding-bottom: 14px; margin-bottom: 16px; }
-.mail-head h2 { font-size: 20px; margin-bottom: 8px; word-break: break-all; }
-.mail-head .meta { color: #777; font-size: 13px; line-height: 1.8; }
-.mail-head .meta b { color: #444; }
-
-.mail-body { font-size: 14px; line-height: 1.7; word-break: break-word; }
-.mail-body pre { white-space: pre-wrap; font-family: inherit; }
-.mail-body iframe { width: 100%; border: none; }
-
-.delete-btn {
-  margin-top: 20px;
-  padding: 6px 16px;
-  border: none;
-  border-radius: 6px;
-  background: #e53935;
-  color: #fff;
-  cursor: pointer;
-  font-size: 13px;
-}
-.delete-btn:hover { background: #d32f2f; }
+.detail { flex: 1; padding: 28px 36px; overflow-y: auto; background: #0f172a; }
+.detail h2 { font-size: 20px; margin-bottom: 10px; color: #f8fafc; }
+.detail-meta { font-size: 13px; color: #94a3b8; line-height: 1.8; margin-bottom: 14px; }
+.del-btn { background: #dc2626; border: none; color: #fff; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-bottom: 14px; }
+.del-btn:hover { background: #b91c1c; }
+.detail hr { border: none; border-top: 1px solid #334155; margin: 14px 0; }
+.mail-body { white-space: pre-wrap; word-break: break-word; font-family: inherit; font-size: 14px; line-height: 1.8; color: #e2e8f0; }
+.placeholder { color: #475569; text-align: center; margin-top: 60px; }
