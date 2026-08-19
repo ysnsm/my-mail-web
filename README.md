@@ -8,4 +8,5 @@
 
 部署：Cloudflare Pages 连接本仓库，Build output 留空（根目录静态文件）
 
+---
 (本仓库由AI生成）
